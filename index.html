@@ -157,7 +157,7 @@ ${rentProperties.map(p =>
 
 ${property.description}
 
-¿Te interesa obtener más información o quieres agendar una visita?`;
+¿Te interesa obtener más información, ver requisitos para alquilar o quieres agendar una visita?`;
                 },
                 moreInfo: "Perfecto! Nos contactamos a la brevedad a este teléfono para brindarte más información de la propiedad.",
                 visit: "Excelente! Por favor ingresa tus datos e indica los horarios de disponibilidad para la visita. Te contactamos a la brevedad para coordinar.",
@@ -166,9 +166,7 @@ ${property.description}
 • Garantía propietaria en CABA o GBA
 • DNI y constancia de CUIL
 • Últimos 3 recibos de sueldo
-• Certificado de antecedentes penales
-
-¿Cumples con estos requisitos?`
+• Certificado de antecedentes penales`
             },
             reservation: {
                 confirm: (property) => {
@@ -264,7 +262,8 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                     return { type: 'visit' };
                 }
                 
-                if (msg.includes('requisito') || msg.includes('documento') || msg.includes('papeles')) {
+                if (msg.includes('requisito') || msg.includes('documento') || msg.includes('papeles') || 
+                    (msg.includes('requisitos') && msg.includes('alquilar'))) {
                     return { type: 'requirements' };
                 }
                 
