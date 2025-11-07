@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InmoBot - Asistente Inmobiliario IA</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#3b82f6',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Base de datos de propiedades demo
+        const properties = [
+            {
+                id: 1,
+                type: 'Departamento',
+                zone: 'Palermo',
+                price: 180000,
+                currency: 'USD',
+                rooms: 2,
+                bathrooms: 1,
+                area: 65,
+                description: 'Hermoso departamento en Palermo Hollywood, muy luminoso',
+                features: ['Balcón', 'Cocina integrada', 'Aire acondicionado', 'Seguridad 24hs'],
+                images: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400'],
+                available: true
+            },
+            {
+                id: 2,
+                type: 'Casa',
+                zone: 'San Telmo',
+                price: 250000,
+                currency: 'USD',
+                rooms: 3,
+                bathrooms: 2,
+                area: 120,
+                description: 'Casa estilo colonial en el corazón de San Telmo',
+                features: ['Patio', 'Parrilla', 'Garage', 'Techos altos'],
+                images: ['https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400'],
+                available: true
+            },
+            {
+                id: 3,
+                type: 'Departamento',
+                zone: 'Puerto Madero',
+                price: 320000,
+                currency: 'USD',
+                rooms: 2,
+                bathrooms: 2,
+                area: 85,
+                description: 'Moderno departamento con vista al río en Puerto Madero',
+                features: ['Vista al río', 'Gimnasio', 'Piscina', 'Cochera'],
+                images: ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400'],
+                available: true
+            },
+            {
+                id: 4,
+                type: 'Departamento',
+                zone: 'Recoleta',
+                price: 200000,
+                currency: 'USD',
+                rooms: 1,
+                bathrooms: 1,
+                area: 45,
+                description: 'Monoambiente en edificio histórico de Recoleta',
+                features: ['Ubicación céntrica', 'Edificio histórico', 'Portero', 'Balcón francés'],
+                images: ['https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400'],
+                available: true
+            },
+            {
+                id: 5,
+                type: 'Casa',
+                zone: 'Villa Crespo',
+                price: 190000,
+                currency: 'USD',
+                rooms: 3,
+                bathrooms: 2,
+                area: 110,
+                description: 'Casa reciclada en Villa Crespo con diseño moderno',
+                features: ['Terraza', 'Cocina moderna', 'Pisos de madera', 'Luz natural'],
+                images: ['https://images.unsplash.com/photo-1448630360428-65456885c650?w=400'],
+                available: true
+            },
+            {
+                id: 6,
+                type: 'Departamento',
+                zone: 'Belgrano',
+                price: 160000,
+                currency: 'USD',
+                rooms: 2,
+                bathrooms: 1,
+                area: 70,
+                description: 'Departamento familiar en Belgrano con muy buena ubicación',
+                features: ['Cerca de colegios', 'Transporte', 'Parques', 'Comercios'],
+                images: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400'],
+                available: true
+            },
+            {
+                id: 7,
+                type: 'Casa',
+                zone: 'Caballito',
+                price: 170000,
+                currency: 'USD',
+                rooms: 4,
+                bathrooms: 2,
+                area: 140,
+                description: 'Casa amplia en Caballito, ideal para familia grande',
+                features: ['Jardín', 'Garage para 2 autos', 'Quincho', 'Lavadero'],
+                images: ['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400'],
+                available: true
+            },
+            {
+                id: 8,
+                type: 'Departamento',
+                zone: 'Núñez',
+                price: 140000,
+                currency: 'USD',
+                rooms: 2,
+                bathrooms: 1,
+                area: 60,
+                description: 'Departamento en Núñez con excelente conectividad',
+                features: ['Balcón', 'Aire acondicionado', 'Portero eléctrico', 'Ascensor'],
+                images: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400'],
+                available: true
+            }
+        ];
+
+        // Sistema de respuestas inteligentes
+        const chatResponses = {
+            greeting: [
+                "¡Hola! Soy InmoBot, tu asistente inmobiliario. ¿En qué puedo ayudarte hoy?",
+                "¡Bienvenido! Estoy aquí para ayudarte a encontrar la propiedad perfecta. ¿Qué estás buscando?",
+                "¡Hola! ¿Te ayudo a encontrar tu próximo hogar?"
+            ],
+            search: {
+                zone: (zone) => `Encontré ${properties.filter(p => p.zone.toLowerCase().includes(zone.toLowerCase())).length} propiedades en ${zone}. ¿Te las muestro?`,
+                price: (max) => `Tengo varias opciones hasta USD ${max}. ¿Hay alguna zona de tu preferencia?`,
+                rooms: (rooms) => `Perfecto, tengo ${properties.filter(p => p.rooms >= rooms).length} propiedades con ${rooms} o más ambientes disponibles.`,
+                type: (type) => `Excelente elección. Tengo varios ${type.toLowerCase()}s disponibles. ¿En qué zona te interesa?`
+            },
+            property: {
+                details: (property) => `Te muestro los detalles de esta propiedad:
+                
+🏠 ${property.type} en ${property.zone}
+💰 Precio: ${property.currency} ${property.price.toLocaleString()}
+📐 Superficie: ${property.area}m²
+🛏️ ${property.rooms} ambientes, ${property.bathrooms} baños
+✨ Características: ${property.features.join(', ')}
+
+${property.description}
+
+¿Te interesa agendar una visita o necesitas más información?`,
+                visit: "¡Perfecto! Para agendar una visita necesito algunos datos. ¿Cuál es tu nombre completo?",
+                requirements: `Para alquilar necesitarás:
+• Ingresos demostrables (3 veces el valor del alquiler)
+• Garantía propietaria en CABA o GBA
+• DNI y constancia de CUIL
+• Últimos 3 recibos de sueldo
+• Certificado de antecedentes penales
+
+¿Cumples con estos requisitos?`
+            },
+            reservation: {
+                confirm: (property) => `¿Confirmas que quieres reservar esta propiedad?
+
+🏠 ${property.type} en ${property.zone}
+💰 ${property.currency} ${property.price.toLocaleString()}
+
+La seña de reserva es del 10% del valor de la propiedad: ${property.currency} ${(property.price * 0.1).toLocaleString()}`,
+                payment: "Perfecto. Para completar la reserva, sube tu comprobante de pago de la seña.",
+                data: "Ahora necesito completar tus datos para la reserva:",
+                success: (reservationId) => `🎉 ¡Reserva confirmada!
+
+Tu número de reserva es: #${reservationId}
+
+La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro de las próximas 24 horas para coordinar la entrega de llaves y firma del contrato.
+
+¡Felicitaciones por tu nueva propiedad!`
+            },
+            fallback: [
+                "No estoy seguro de entender. ¿Podrías ser más específico sobre qué tipo de propiedad buscas?",
+                "¿Podrías contarme más sobre lo que necesitas? Por ejemplo: zona, presupuesto, cantidad de ambientes...",
+                "Disculpa, no entendí bien. ¿Buscas comprar o alquilar? ¿En qué zona?"
+            ]
+        };
+
+        function InmobotChat() {
+            const [messages, setMessages] = useState([
+                {
+                    id: 1,
+                    type: 'bot',
+                    content: chatResponses.greeting[0],
+                    timestamp: new Date()
+                }
+            ]);
+            const [inputValue, setInputValue] = useState('');
+            const [currentFlow, setCurrentFlow] = useState('chat');
+            const [selectedProperty, setSelectedProperty] = useState(null);
+            const [leadData, setLeadData] = useState({});
+            const [reservationData, setReservationData] = useState({});
+            const [uploadedFile, setUploadedFile] = useState(null);
+            const messagesEndRef = useRef(null);
+
+            useEffect(() => {
+                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, [messages]);
+
+            const addMessage = (content, type = 'bot') => {
+                const newMessage = {
+                    id: Date.now(),
+                    type,
+                    content,
+                    timestamp: new Date()
+                };
+                setMessages(prev => [...prev, newMessage]);
+            };
+
+            const analyzeMessage = (message) => {
+                const msg = message.toLowerCase();
+                
+                if (msg.includes('hola') || msg.includes('buenas') || msg.includes('buenos días')) {
+                    return { type: 'greeting' };
+                }
+                
+                if (msg.includes('precio') || msg.includes('cuesta') || msg.includes('valor')) {
+                    const priceMatch = msg.match(/(\d+)/);
+                    if (priceMatch) {
+                        return { type: 'price', value: parseInt(priceMatch[1]) };
+                    }
+                }
+                
+                if (msg.includes('ambiente') || msg.includes('habitación') || msg.includes('cuarto')) {
+                    const roomMatch = msg.match(/(\d+)/);
+                    if (roomMatch) {
+                        return { type: 'rooms', value: parseInt(roomMatch[1]) };
+                    }
+                }
+                
+                const zones = ['palermo', 'recoleta', 'puerto madero', 'san telmo', 'belgrano', 'caballito', 'villa crespo', 'núñez'];
+                const foundZone = zones.find(zone => msg.includes(zone));
+                if (foundZone) {
+                    return { type: 'zone', value: foundZone };
+                }
+                
+                if (msg.includes('departamento') || msg.includes('depto')) {
+                    return { type: 'type', value: 'Departamento' };
+                }
+                
+                if (msg.includes('casa')) {
+                    return { type: 'type', value: 'Casa' };
+                }
+                
+                if (msg.includes('visita') || msg.includes('ver') || msg.includes('conocer')) {
+                    return { type: 'visit' };
+                }
+                
+                if (msg.includes('requisito') || msg.includes('documento') || msg.includes('papeles')) {
+                    return { type: 'requirements' };
+                }
+                
+                if (msg.includes('reservar') || msg.includes('reserva') || msg.includes('apartar')) {
+                    return { type: 'reserve' };
+                }
+                
+                if (msg.includes('sí') || msg.includes('si') || msg.includes('confirmo') || msg.includes('acepto')) {
+                    return { type: 'confirm' };
+                }
+                
+                return { type: 'fallback' };
+            };
+
+            const getResponse = (analysis, userMessage) => {
+                switch (analysis.type) {
+                    case 'greeting':
+                        return chatResponses.greeting[Math.floor(Math.random() * chatResponses.greeting.length)];
+                    
+                    case 'zone':
+                        const zoneProperties = properties.filter(p => 
+                            p.zone.toLowerCase().includes(analysis.value.toLowerCase())
+                        );
+                        return chatResponses.search.zone(analysis.value) + '\n\n' + 
+                               zoneProperties.map(p => 
+                                   `🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price.toLocaleString()} - ${p.rooms} amb.`
+                               ).join('\n');
+                    
+                    case 'price':
+                        const priceProperties = properties.filter(p => p.price <= analysis.value);
+                        return chatResponses.search.price(analysis.value) + '\n\n' + 
+                               priceProperties.slice(0, 3).map(p => 
+                                   `🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price.toLocaleString()} - ${p.rooms} amb.`
+                               ).join('\n');
+                    
+                    case 'rooms':
+                        const roomProperties = properties.filter(p => p.rooms >= analysis.value);
+                        return chatResponses.search.rooms(analysis.value) + '\n\n' + 
+                               roomProperties.slice(0, 3).map(p => 
+                                   `🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price.toLocaleString()} - ${p.rooms} amb.`
+                               ).join('\n');
+                    
+                    case 'type':
+                        const typeProperties = properties.filter(p => p.type === analysis.value);
+                        return chatResponses.search.type(analysis.value) + '\n\n' + 
+                               typeProperties.slice(0, 3).map(p => 
+                                   `🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price.toLocaleString()} - ${p.rooms} amb.`
+                               ).join('\n');
+                    
+                    case 'visit':
+                        return chatResponses.property.visit;
+                    
+                    case 'requirements':
+                        return chatResponses.property.requirements;
+                    
+                    case 'reserve':
+                        if (selectedProperty) {
+                            return chatResponses.reservation.confirm(selectedProperty);
+                        }
+                        return "Primero elige una propiedad que te interese para poder reservarla.";
+                    
+                    case 'confirm':
+                        if (currentFlow === 'reservation_confirm') {
+                            setCurrentFlow('reservation_payment');
+                            return chatResponses.reservation.payment;
+                        }
+                        return "¿Qué quieres confirmar exactamente?";
+                    
+                    default:
+                        return chatResponses.fallback[Math.floor(Math.random() * chatResponses.fallback.length)];
+                }
+            };
+
+            const handleSendMessage = () => {
+                if (!inputValue.trim()) return;
+                
+                addMessage(inputValue, 'user');
+                const analysis = analyzeMessage(inputValue);
+                const response = getResponse(analysis, inputValue);
+                
+                setTimeout(() => addMessage(response), 500);
+                setInputValue('');
+            };
+
+            const handlePropertySelect = (property) => {
+                setSelectedProperty(property);
+                addMessage(`Me interesa esta propiedad: ${property.type} en ${property.zone}`, 'user');
+                setTimeout(() => addMessage(chatResponses.property.details(property)), 500);
+            };
+
+            const handleReservation = (property) => {
+                setSelectedProperty(property);
+                setCurrentFlow('reservation_confirm');
+                addMessage('Quiero reservar esta propiedad', 'user');
+                setTimeout(() => addMessage(chatResponses.reservation.confirm(property)), 500);
+            };
+
+            const handleFileUpload = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    setUploadedFile(file);
+                    addMessage(`Comprobante subido: ${file.name}`, 'user');
+                    setCurrentFlow('reservation_data');
+                    setTimeout(() => addMessage(chatResponses.reservation.data), 500);
+                }
+            };
+
+            const handleReservationComplete = (data) => {
+                const reservationId = `INM-${Date.now()}`;
+                setReservationData(data);
+                addMessage('Datos completados, confirmando reserva...', 'user');
+                setTimeout(() => addMessage(chatResponses.reservation.success(reservationId)), 1000);
+                setCurrentFlow('chat');
+                setSelectedProperty(null);
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-50">
+                    <header className="bg-white shadow-sm border-b">
+                        <div className="max-w-6xl mx-auto px-4 py-4">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                                    <span className="text-white font-bold text-lg">🤖</span>
+                                </div>
+                                <div>
+                                    <h1 className="text-xl font-bold text-gray-900">InmoBot</h1>
+                                    <p className="text-sm text-gray-600">Tu asistente inmobiliario inteligente</p>
+                                </div>
+                                <div className="ml-auto">
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        ● En línea
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div className="max-w-6xl mx-auto px-4 py-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div className="lg:col-span-2">
+                                <div className="bg-white rounded-lg shadow-sm border h-[600px] flex flex-col">
+                                    <div className="p-4 border-b bg-gray-50 rounded-t-lg">
+                                        <h2 className="font-semibold text-gray-800">Chat con InmoBot</h2>
+                                        <p className="text-sm text-gray-600">Pregúntame sobre propiedades disponibles</p>
+                                    </div>
+                                    
+                                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                                        {messages.map(message => (
+                                            <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                                                    message.type === 'user' 
+                                                        ? 'bg-primary text-white rounded-br-sm' 
+                                                        : 'bg-gray-100 text-gray-800 rounded-bl-sm'
+                                                }`}>
+                                                    <p className="whitespace-pre-wrap">{message.content}</p>
+                                                    <span className={`text-xs mt-1 block ${
+                                                        message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
+                                                    }`}>
+                                                        {message.timestamp.toLocaleTimeString()}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        
+                                        {currentFlow === 'reservation_payment' && (
+                                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                                <h3 className="font-semibold text-blue-900 mb-2">Subir Comprobante de Pago</h3>
+                                                <input 
+                                                    type="file" 
+                                                    accept="image/*,.pdf"
+                                                    onChange={handleFileUpload}
+                                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-600"
+                                                />
+                                                <p className="text-sm text-blue-700 mt-2">Acepta imágenes (JPG, PNG) o PDF</p>
+                                            </div>
+                                        )}
+                                        
+                                        {currentFlow === 'reservation_data' && (
+                                            <ReservationForm onComplete={handleReservationComplete} />
+                                        )}
+                                        
+                                        <div ref={messagesEndRef} />
+                                    </div>
+                                    
+                                    <div className="p-4 border-t">
+                                        <div className="flex space-x-2">
+                                            <input
+                                                type="text"
+                                                value={inputValue}
+                                                onChange={(e) => setInputValue(e.target.value)}
+                                                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                                                placeholder="Escribe tu mensaje..."
+                                                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                            />
+                                            <button
+                                                onClick={handleSendMessage}
+                                                className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                                            >
+                                                Enviar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-6">
+                                <div className="bg-white rounded-lg shadow-sm border p-4">
+                                    <h3 className="font-semibold text-gray-800 mb-4">Propiedades Destacadas</h3>
+                                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                                        {properties.slice(0, 4).map(property => (
+                                            <PropertyCard
+                                                key={property.id}
+                                                property={property}
+                                                onSelect={handlePropertySelect}
+                                                onReserve={handleReservation}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="bg-white rounded-lg shadow-sm border p-4">
+                                    <h3 className="font-semibold text-gray-800 mb-4">Búsquedas Frecuentes</h3>
+                                    <div className="space-y-2">
+                                        {[
+                                            'Departamentos en Palermo',
+                                            'Casas hasta USD 200.000',
+                                            'Propiedades 2 ambientes',
+                                            'Apartamentos Puerto Madero'
+                                        ].map((search, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => {
+                                                    setInputValue(search);
+                                                    addMessage(search, 'user');
+                                                    const analysis = analyzeMessage(search);
+                                                    const response = getResponse(analysis, search);
+                                                    setTimeout(() => addMessage(response), 500);
+                                                    setInputValue('');
+                                                }}
+                                                className="w-full text-left text-sm text-primary hover:bg-blue-50 p-2 rounded transition-colors"
+                                            >
+                                                {search}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function PropertyCard({ property, onSelect, onReserve }) {
+            return (
+                <div className="border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                    <img 
+                        src={property.images[0]} 
+                        alt={`${property.type} en ${property.zone}`}
+                        className="w-full h-32 object-cover rounded mb-2"
+                    />
+                    <div className="space-y-1">
+                        <h4 className="font-semibold text-sm">{property.type} en {property.zone}</h4>
+                        <p className="text-primary font-bold">{property.currency} {property.price.toLocaleString()}</p>
+                        <p className="text-xs text-gray-600">{property.rooms} amb. • {property.area}m²</p>
+                        <div className="flex space-x-1 pt-2">
+                            <button 
+                                onClick={() => onSelect(property)}
+                                className="flex-1 text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200"
+                            >
+                                Ver detalles
+                            </button>
+                            <button 
+                                onClick={() => onReserve(property)}
+                                className="flex-1 text-xs bg-primary text-white px-2 py-1 rounded hover:bg-blue-600"
+                            >
+                                Reservar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function ReservationForm({ onComplete }) {
+            const [formData, setFormData] = useState({
+                fullName: '',
+                email: '',
+                phone: '',
+                dni: '',
+                address: '',
+                occupation: '',
+                income: '',
+                references: ''
+            });
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                onComplete(formData);
+            };
+
+            const handleChange = (field, value) => {
+                setFormData(prev => ({ ...prev, [field]: value }));
+            };
+
+            return (
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <h3 className="font-semibold text-gray-800 mb-4">Datos para la Reserva</h3>
+                    <form onSubmit={handleSubmit} className="space-y-3">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
+                            <input
+                                type="text"
+                                value={formData.fullName}
+                                onChange={(e) => handleChange('fullName', e.target.value)}
+                                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input
+                                type="email"
+                                value={formData.email}
+                                onChange={(e) => handleChange('email', e.target.value)}
+                                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                            <input
+                                type="tel"
+                                value={formData.phone}
+                                onChange={(e) => handleChange('phone', e.target.value)}
+                                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">DNI</label>
+                            <input
+                                type="text"
+                                value={formData.dni}
+                                onChange={(e) => handleChange('dni', e.target.value)}
+                                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Dirección actual</label>
+                            <input
+                                type="text"
+                                value={formData.address}
+                                onChange={(e) => handleChange('address', e.target.value)}
+                                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                required
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full bg-success text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors font-semibold"
+                        >
+                            Confirmar Reserva
+                        </button>
+                    </form>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<InmobotChat />, document.getElementById('root'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+Necesito crear un proyecto de demo para un chatbot de inmobiliarias. Es una demo ESTÁTICA (sin API por ahora) que simula conversaciones inteligentes con respuestas pre-programadas.
+
+CONTEXTO:
+- Es para mostrar a inmobiliarias argentinas cómo funcionaría un asistente IA
+- Debe deployarse en Vercel (ya tengo cuenta)
+- Quiero usar React en un solo archivo HTML autocontenido
+- Debe verse profesional y moderno
+
+FUNCIONALIDADES REQUERIDAS:
+1. Chat interactivo con respuestas simuladas inteligentes
+2. Base de datos de 8-10 propiedades demo (departamentos y casas en Buenos Aires)
+3. El bot debe poder responder sobre:
+   - Búsquedas por zona, precio, ambientes
+   - Características de propiedades específicas
+   - Agendar visitas (simulado)
+   - Requisitos para alquilar
+4. Captura de datos del lead (nombre, email, teléfono)
+5. Sistema de reserva completo que incluya:
+   - Confirmación de la propiedad a reservar
+   - Monto de la seña/reserva
+   - Simulación de carga de comprobante de pago (imagen/PDF)
+   - Formulario con datos completos del interesado
+   - Confirmación final con número de reserva
+   - Mensaje de "la inmobiliaria recibirá tu solicitud"
+6. Diseño responsive y profesional
+
+Que el flujo sea:
+Consulta → Encuentra propiedad → Quiere reservar → Completa datos → Sube comprobante → Confirmación
+
+STACK TÉCNICO:
+- HTML + React (en un solo archivo)
+- TailwindCSS vía CDN
+- Sin backend (todo estático)
+- Lógica de respuestas con pattern matching inteligente
+
+Por favor:
+1. Crea la estructura del proyecto
+2. Genera el código completo
+3. Dame instrucciones para deployar en Vercel
+
+¿Arrancamos?
