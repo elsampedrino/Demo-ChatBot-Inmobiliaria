@@ -31,56 +31,16 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // Base de datos de propiedades demo
+        // Base de datos de propiedades simplificada - Solo 2 flujos
         const properties = [
+            // FLUJO 1: COMPRA - Propiedades hasta USD 250.000
             {
                 id: 1,
-                type: 'Departamento',
-                zone: 'Palermo',
-                price: 180000,
-                currency: 'USD',
-                rooms: 2,
-                bathrooms: 1,
-                area: 65,
-                description: 'Hermoso departamento en Palermo Hollywood, muy luminoso',
-                features: ['Balcón', 'Cocina integrada', 'Aire acondicionado', 'Seguridad 24hs'],
-                images: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400'],
-                available: true
-            },
-            {
-                id: 2,
-                type: 'Casa',
-                zone: 'San Telmo',
-                price: 250000,
-                currency: 'USD',
-                rooms: 3,
-                bathrooms: 2,
-                area: 120,
-                description: 'Casa estilo colonial en el corazón de San Telmo',
-                features: ['Patio', 'Parrilla', 'Garage', 'Techos altos'],
-                images: ['https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400'],
-                available: true
-            },
-            {
-                id: 3,
-                type: 'Departamento',
-                zone: 'Puerto Madero',
-                price: 320000,
-                currency: 'USD',
-                rooms: 2,
-                bathrooms: 2,
-                area: 85,
-                description: 'Moderno departamento con vista al río en Puerto Madero',
-                features: ['Vista al río', 'Gimnasio', 'Piscina', 'Cochera'],
-                images: ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400'],
-                available: true
-            },
-            {
-                id: 4,
                 type: 'Departamento',
                 zone: 'Recoleta',
                 price: 200000,
                 currency: 'USD',
+                operation: 'venta',
                 rooms: 1,
                 bathrooms: 1,
                 area: 45,
@@ -90,11 +50,12 @@
                 available: true
             },
             {
-                id: 5,
+                id: 2,
                 type: 'Casa',
                 zone: 'Villa Crespo',
                 price: 190000,
                 currency: 'USD',
+                operation: 'venta',
                 rooms: 3,
                 bathrooms: 2,
                 area: 110,
@@ -104,75 +65,102 @@
                 available: true
             },
             {
-                id: 6,
-                type: 'Departamento',
-                zone: 'Belgrano',
-                price: 160000,
-                currency: 'USD',
-                rooms: 2,
-                bathrooms: 1,
-                area: 70,
-                description: 'Departamento familiar en Belgrano con muy buena ubicación',
-                features: ['Cerca de colegios', 'Transporte', 'Parques', 'Comercios'],
-                images: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400'],
-                available: true
-            },
-            {
-                id: 7,
+                id: 3,
                 type: 'Casa',
-                zone: 'Caballito',
-                price: 170000,
+                zone: 'San Telmo',
+                price: 250000,
                 currency: 'USD',
-                rooms: 4,
+                operation: 'venta',
+                rooms: 3,
                 bathrooms: 2,
-                area: 140,
-                description: 'Casa amplia en Caballito, ideal para familia grande',
-                features: ['Jardín', 'Garage para 2 autos', 'Quincho', 'Lavadero'],
-                images: ['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400'],
+                area: 120,
+                description: 'Casa estilo colonial en el corazón de San Telmo',
+                features: ['Patio', 'Parrilla', 'Garage', 'Techos altos'],
+                images: ['https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400'],
+                available: true
+            },
+            // FLUJO 2: ALQUILER - Departamentos 2 ambientes en Palermo
+            {
+                id: 4,
+                type: 'Departamento',
+                zone: 'Palermo',
+                price: 850,
+                currency: 'USD',
+                operation: 'alquiler',
+                rooms: 2,
+                bathrooms: 1,
+                area: 65,
+                description: 'Hermoso departamento en Palermo Hollywood, muy luminoso',
+                features: ['Balcón', 'Cocina integrada', 'Aire acondicionado', 'Seguridad 24hs'],
+                images: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400'],
                 available: true
             },
             {
-                id: 8,
+                id: 5,
                 type: 'Departamento',
-                zone: 'Núñez',
-                price: 140000,
+                zone: 'Palermo',
+                price: 950,
                 currency: 'USD',
+                operation: 'alquiler',
                 rooms: 2,
-                bathrooms: 1,
-                area: 60,
-                description: 'Departamento en Núñez con excelente conectividad',
-                features: ['Balcón', 'Aire acondicionado', 'Portero eléctrico', 'Ascensor'],
-                images: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400'],
+                bathrooms: 2,
+                area: 75,
+                description: 'Moderno departamento en Palermo Soho con excelentes amenities',
+                features: ['Vista panorámica', 'Gimnasio en edificio', 'Terraza privada', 'Cocina equipada'],
+                images: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400'],
                 available: true
             }
         ];
 
-        // Sistema de respuestas inteligentes
+        // Sistema de respuestas inteligentes - Simplificado para 2 flujos
         const chatResponses = {
             greeting: [
-                "¡Hola! Soy InmoBot, tu asistente inmobiliario. ¿En qué puedo ayudarte hoy?",
-                "¡Bienvenido! Estoy aquí para ayudarte a encontrar la propiedad perfecta. ¿Qué estás buscando?",
-                "¡Hola! ¿Te ayudo a encontrar tu próximo hogar?"
+                "¡Hola! Soy InmoBot, tu asistente inmobiliario. Puedo ayudarte con propiedades en venta hasta USD 250.000 o departamentos en alquiler en Palermo. ¿Qué te interesa?",
+                "¡Bienvenido! Tengo excelentes opciones: propiedades en venta hasta USD 250.000 y departamentos de 2 ambientes en alquiler en Palermo. ¿Cuál prefieres?",
+                "¡Hola! ¿Buscas comprar una propiedad hasta USD 250.000 o alquilar un departamento de 2 ambientes en Palermo?"
             ],
             search: {
-                zone: (zone) => `Encontré ${properties.filter(p => p.zone.toLowerCase().includes(zone.toLowerCase())).length} propiedades en ${zone}. ¿Te las muestro?`,
-                price: (max) => `Tengo varias opciones hasta USD ${max}. ¿Hay alguna zona de tu preferencia?`,
-                rooms: (rooms) => `Perfecto, tengo ${properties.filter(p => p.rooms >= rooms).length} propiedades con ${rooms} o más ambientes disponibles.`,
-                type: (type) => `Excelente elección. Tengo varios ${type.toLowerCase()}s disponibles. ¿En qué zona te interesa?`
+                sale: () => {
+                    const saleProperties = properties.filter(p => p.operation === 'venta');
+                    return `Tengo ${saleProperties.length} excelentes propiedades en venta hasta USD 250.000:
+
+${saleProperties.map(p => 
+`🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price.toLocaleString()} - ${p.rooms} amb.`
+).join('\n')}
+
+¿Te interesa alguna en particular?`;
+                },
+                rent: () => {
+                    const rentProperties = properties.filter(p => p.operation === 'alquiler');
+                    return `Tengo ${rentProperties.length} hermosos departamentos de 2 ambientes en alquiler en Palermo:
+
+${rentProperties.map(p => 
+`🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price}/mes - ${p.rooms} amb.`
+).join('\n')}
+
+¿Cuál te llama más la atención?`;
+                }
             },
             property: {
-                details: (property) => `Te muestro los detalles de esta propiedad:
+                details: (property) => {
+                    const priceText = property.operation === 'venta' 
+                        ? `${property.currency} ${property.price.toLocaleString()}` 
+                        : `${property.currency} ${property.price}/mes`;
+                    
+                    return `Te muestro los detalles de esta propiedad:
                 
 🏠 ${property.type} en ${property.zone}
-💰 Precio: ${property.currency} ${property.price.toLocaleString()}
+💰 ${property.operation === 'venta' ? 'Precio' : 'Alquiler'}: ${priceText}
 📐 Superficie: ${property.area}m²
 🛏️ ${property.rooms} ambientes, ${property.bathrooms} baños
 ✨ Características: ${property.features.join(', ')}
 
 ${property.description}
 
-¿Te interesa agendar una visita o necesitas más información?`,
-                visit: "¡Perfecto! Para agendar una visita necesito algunos datos. ¿Cuál es tu nombre completo?",
+¿Te interesa obtener más información o quieres agendar una visita?`;
+                },
+                moreInfo: "Perfecto! Nos contactamos a la brevedad a este teléfono para brindarte más información de la propiedad.",
+                visit: "Excelente! Por favor ingresa tus datos e indica los horarios de disponibilidad para la visita. Te contactamos a la brevedad para coordinar.",
                 requirements: `Para alquilar necesitarás:
 • Ingresos demostrables (3 veces el valor del alquiler)
 • Garantía propietaria en CABA o GBA
@@ -183,26 +171,32 @@ ${property.description}
 ¿Cumples con estos requisitos?`
             },
             reservation: {
-                confirm: (property) => `¿Confirmas que quieres reservar esta propiedad?
+                confirm: (property) => {
+                    const priceText = property.operation === 'venta' 
+                        ? `${property.currency} ${property.price.toLocaleString()}` 
+                        : `${property.currency} ${property.price}/mes`;
+                    
+                    return `¿Confirmas que quieres reservar esta propiedad?
 
 🏠 ${property.type} en ${property.zone}
-💰 ${property.currency} ${property.price.toLocaleString()}
+💰 ${priceText}
 
-La seña de reserva es del 10% del valor de la propiedad: ${property.currency} ${(property.price * 0.1).toLocaleString()}`,
+La seña de reserva es del 10% del valor de la propiedad: ${property.currency} ${(property.price * 0.1).toLocaleString()}`;
+                },
                 payment: "Perfecto. Para completar la reserva, sube tu comprobante de pago de la seña.",
                 data: "Ahora necesito completar tus datos para la reserva:",
                 success: (reservationId) => `🎉 ¡Reserva confirmada!
 
 Tu número de reserva es: #${reservationId}
 
-La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro de las próximas 24 horas para coordinar la entrega de llaves y firma del contrato.
+La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro de las próximas 24 horas para coordinar los próximos pasos.
 
 ¡Felicitaciones por tu nueva propiedad!`
             },
             fallback: [
-                "No estoy seguro de entender. ¿Podrías ser más específico sobre qué tipo de propiedad buscas?",
-                "¿Podrías contarme más sobre lo que necesitas? Por ejemplo: zona, presupuesto, cantidad de ambientes...",
-                "Disculpa, no entendí bien. ¿Buscas comprar o alquilar? ¿En qué zona?"
+                "Puedo ayudarte con propiedades en venta hasta USD 250.000 o departamentos en alquiler en Palermo. ¿Cuál te interesa?",
+                "Te ofrezco dos opciones: compra de propiedades hasta USD 250.000 o alquiler de departamentos de 2 ambientes en Palermo.",
+                "¿Buscas comprar una propiedad hasta USD 250.000 o alquilar un departamento en Palermo?"
             ]
         };
 
@@ -245,35 +239,28 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                     return { type: 'greeting' };
                 }
                 
-                if (msg.includes('precio') || msg.includes('cuesta') || msg.includes('valor')) {
-                    const priceMatch = msg.match(/(\d+)/);
-                    if (priceMatch) {
-                        return { type: 'price', value: parseInt(priceMatch[1]) };
-                    }
+                // Flujo 1: Compra - Propiedades hasta USD 250.000
+                if (msg.includes('compra') || msg.includes('comprar') || msg.includes('venta') || 
+                    msg.includes('250') || msg.includes('250000') || msg.includes('250.000')) {
+                    return { type: 'sale' };
                 }
                 
-                if (msg.includes('ambiente') || msg.includes('habitación') || msg.includes('cuarto')) {
-                    const roomMatch = msg.match(/(\d+)/);
-                    if (roomMatch) {
-                        return { type: 'rooms', value: parseInt(roomMatch[1]) };
-                    }
+                // Flujo 2: Alquiler - Departamentos en Palermo
+                if (msg.includes('alquiler') || msg.includes('alquilar') || 
+                    (msg.includes('palermo') && (msg.includes('departamento') || msg.includes('depto'))) ||
+                    (msg.includes('2 ambientes') || msg.includes('dos ambientes'))) {
+                    return { type: 'rent' };
                 }
                 
-                const zones = ['palermo', 'recoleta', 'puerto madero', 'san telmo', 'belgrano', 'caballito', 'villa crespo', 'núñez'];
-                const foundZone = zones.find(zone => msg.includes(zone));
-                if (foundZone) {
-                    return { type: 'zone', value: foundZone };
+                if (msg.includes('palermo')) {
+                    return { type: 'rent' };
                 }
                 
-                if (msg.includes('departamento') || msg.includes('depto')) {
-                    return { type: 'type', value: 'Departamento' };
+                if (msg.includes('más información') || msg.includes('mas información') || msg.includes('info')) {
+                    return { type: 'more_info' };
                 }
                 
-                if (msg.includes('casa')) {
-                    return { type: 'type', value: 'Casa' };
-                }
-                
-                if (msg.includes('visita') || msg.includes('ver') || msg.includes('conocer')) {
+                if (msg.includes('visita') || msg.includes('agendar') || msg.includes('ver')) {
                     return { type: 'visit' };
                 }
                 
@@ -298,51 +285,32 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                         setSearchResults([]);
                         return chatResponses.greeting[Math.floor(Math.random() * chatResponses.greeting.length)];
                     
-                    case 'zone':
-                        const zoneProperties = properties.filter(p => 
-                            p.zone.toLowerCase().includes(analysis.value.toLowerCase())
-                        );
-                        setSearchResults(zoneProperties);
-                        return chatResponses.search.zone(analysis.value) + '\n\n' + 
-                               zoneProperties.map(p => 
-                                   `🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price.toLocaleString()} - ${p.rooms} amb.`
-                               ).join('\n');
+                    case 'sale':
+                        const saleProperties = properties.filter(p => p.operation === 'venta');
+                        setSearchResults(saleProperties);
+                        return chatResponses.search.sale();
                     
-                    case 'price':
-                        const priceProperties = properties.filter(p => p.price <= analysis.value);
-                        setSearchResults(priceProperties.slice(0, 5));
-                        return chatResponses.search.price(analysis.value) + '\n\n' + 
-                               priceProperties.slice(0, 3).map(p => 
-                                   `🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price.toLocaleString()} - ${p.rooms} amb.`
-                               ).join('\n');
+                    case 'rent':
+                        const rentProperties = properties.filter(p => p.operation === 'alquiler');
+                        setSearchResults(rentProperties);
+                        return chatResponses.search.rent();
                     
-                    case 'rooms':
-                        const roomProperties = properties.filter(p => p.rooms >= analysis.value);
-                        setSearchResults(roomProperties.slice(0, 5));
-                        return chatResponses.search.rooms(analysis.value) + '\n\n' + 
-                               roomProperties.slice(0, 3).map(p => 
-                                   `🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price.toLocaleString()} - ${p.rooms} amb.`
-                               ).join('\n');
-                    
-                    case 'type':
-                        const typeProperties = properties.filter(p => p.type === analysis.value);
-                        setSearchResults(typeProperties.slice(0, 5));
-                        return chatResponses.search.type(analysis.value) + '\n\n' + 
-                               typeProperties.slice(0, 3).map(p => 
-                                   `🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price.toLocaleString()} - ${p.rooms} amb.`
-                               ).join('\n');
+                    case 'more_info':
+                        return chatResponses.property.moreInfo;
                     
                     case 'visit':
+                        setCurrentFlow('visit_form');
                         return chatResponses.property.visit;
                     
                     case 'requirements':
                         return chatResponses.property.requirements;
                     
                     case 'reserve':
-                        if (selectedProperty) {
+                        if (selectedProperty && selectedProperty.operation === 'alquiler') {
+                            setCurrentFlow('reservation_confirm');
                             return chatResponses.reservation.confirm(selectedProperty);
                         }
-                        return "Primero elige una propiedad que te interese para poder reservarla.";
+                        return "La reserva está disponible solo para propiedades en alquiler.";
                     
                     case 'confirm':
                         if (currentFlow === 'reservation_confirm') {
@@ -389,6 +357,12 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                     setCurrentFlow('reservation_data');
                     setTimeout(() => addMessage(chatResponses.reservation.data), 500);
                 }
+            };
+
+            const handleVisitComplete = (data) => {
+                addMessage('Datos enviados correctamente', 'user');
+                setTimeout(() => addMessage('¡Perfecto! Hemos recibido tu información. Nos pondremos en contacto contigo dentro de las próximas 24 horas para coordinar la visita. ¡Gracias por tu interés!'), 1000);
+                setCurrentFlow('chat');
             };
 
             const handleReservationComplete = (data) => {
@@ -447,6 +421,10 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                                                 </div>
                                             </div>
                                         ))}
+                                        
+                                        {currentFlow === 'visit_form' && (
+                                            <VisitForm onComplete={handleVisitComplete} />
+                                        )}
                                         
                                         {currentFlow === 'reservation_payment' && (
                                             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -512,10 +490,10 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                                     <h3 className="font-semibold text-gray-800 mb-4">Búsquedas Frecuentes</h3>
                                     <div className="space-y-2">
                                         {[
-                                            'Departamentos en Palermo',
-                                            'Casas hasta USD 200.000',
-                                            'Propiedades 2 ambientes',
-                                            'Apartamentos Puerto Madero'
+                                            'Propiedades en venta hasta USD 250.000',
+                                            'Departamentos en alquiler en Palermo',
+                                            'Más información',
+                                            'Agendar visita'
                                         ].map((search, index) => (
                                             <button
                                                 key={index}
@@ -540,6 +518,10 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
         }
 
         function PropertyCard({ property, onSelect, onReserve }) {
+            const priceText = property.operation === 'venta' 
+                ? `${property.currency} ${property.price.toLocaleString()}` 
+                : `${property.currency} ${property.price}/mes`;
+                
             return (
                 <div className="border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
                     <img 
@@ -549,8 +531,8 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                     />
                     <div className="space-y-1">
                         <h4 className="font-semibold text-sm">{property.type} en {property.zone}</h4>
-                        <p className="text-primary font-bold">{property.currency} {property.price.toLocaleString()}</p>
-                        <p className="text-xs text-gray-600">{property.rooms} amb. • {property.area}m²</p>
+                        <p className="text-primary font-bold">{priceText}</p>
+                        <p className="text-xs text-gray-600">{property.rooms} amb. • {property.area}m² • {property.operation}</p>
                         <div className="flex space-x-1 pt-2">
                             <button 
                                 onClick={() => onSelect(property)}
@@ -558,14 +540,88 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                             >
                                 Ver detalles
                             </button>
-                            <button 
-                                onClick={() => onReserve(property)}
-                                className="flex-1 text-xs bg-primary text-white px-2 py-1 rounded hover:bg-blue-600"
-                            >
-                                Reservar
-                            </button>
+                            {property.operation === 'alquiler' && (
+                                <button 
+                                    onClick={() => onReserve(property)}
+                                    className="flex-1 text-xs bg-primary text-white px-2 py-1 rounded hover:bg-blue-600"
+                                >
+                                    Reservar
+                                </button>
+                            )}
                         </div>
                     </div>
+                </div>
+            );
+        }
+
+        function VisitForm({ onComplete }) {
+            const [formData, setFormData] = useState({
+                fullName: '',
+                email: '',
+                phone: '',
+                availability: ''
+            });
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                onComplete(formData);
+            };
+
+            const handleChange = (field, value) => {
+                setFormData(prev => ({ ...prev, [field]: value }));
+            };
+
+            return (
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <h3 className="font-semibold text-gray-800 mb-4">Datos para la Visita</h3>
+                    <form onSubmit={handleSubmit} className="space-y-3">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
+                            <input
+                                type="text"
+                                value={formData.fullName}
+                                onChange={(e) => handleChange('fullName', e.target.value)}
+                                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input
+                                type="email"
+                                value={formData.email}
+                                onChange={(e) => handleChange('email', e.target.value)}
+                                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                            <input
+                                type="tel"
+                                value={formData.phone}
+                                onChange={(e) => handleChange('phone', e.target.value)}
+                                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Horarios de disponibilidad</label>
+                            <textarea
+                                value={formData.availability}
+                                onChange={(e) => handleChange('availability', e.target.value)}
+                                placeholder="Ej: Lunes a Viernes de 9:00 a 18:00, Sábados de 10:00 a 14:00"
+                                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent h-20 resize-none"
+                                required
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors font-semibold"
+                        >
+                            Enviar Solicitud
+                        </button>
+                    </form>
                 </div>
             );
         }
