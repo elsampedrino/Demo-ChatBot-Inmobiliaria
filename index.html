@@ -262,8 +262,8 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                     return { type: 'visit' };
                 }
                 
-                if (msg.includes('requisito') || msg.includes('documento') || msg.includes('papeles') || 
-                    (msg.includes('requisitos') && msg.includes('alquilar'))) {
+                if (msg.includes('requisitos de alquiler') || msg.includes('documento') || msg.includes('papeles') || 
+                    (msg.includes('requisitos') && msg.includes('requisitos para alquilar'))) {
                     return { type: 'requirements' };
                 }
                 
