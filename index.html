@@ -192,9 +192,7 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
 ¡Felicitaciones por tu nueva propiedad!`
             },
             fallback: [
-                "Puedo ayudarte con propiedades en venta hasta USD 250.000 o departamentos en alquiler en Palermo. ¿Cuál te interesa?",
-                "Hola, soy tu asistente BOT y estoy aquí para ayudarte. ¿Qué necesitas consultar?",
-                "¿Buscas comprar una propiedad hasta USD 250.000 o alquilar un departamento en Palermo?"
+                "Hola, soy tu asistente BOT y estoy aquí para ayudarte. ¿Qué necesitas consultar?"                
             ]
         };
 
@@ -320,7 +318,11 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                     
                     default:
                         setSearchResults([]);
-                        return chatResponses.fallback[Math.floor(Math.random() * chatResponses.fallback.length)];
+                        // Solo responder con saludo si detecta hola o buenas
+                        if (message.toLowerCase().includes('hola') || message.toLowerCase().includes('buenas')) {
+                            return chatResponses.fallback[0];
+                        }
+                        return "Lo siento, no entendí tu consulta. ¿Podrías reformularla o contarme qué necesitas?";
                 }
             };
 
