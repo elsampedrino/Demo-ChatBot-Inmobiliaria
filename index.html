@@ -157,7 +157,7 @@ ${rentProperties.map(p =>
 
 ${property.description}
 
-¿Te interesa obtener más información, ver requisitos para alquilar o quieres agendar una visita?`;
+${property.operation === 'venta' ? '¿Te interesa obtener más información o quieres agendar una visita?' : '¿Te interesa obtener más información, ver requisitos para alquilar o quieres agendar una visita?'}`;
                 },
                 moreInfo: "Perfecto! Nos contactamos a la brevedad a este teléfono para brindarte más información de la propiedad.",
                 visit: "Excelente! Por favor ingresa tus datos e indica los horarios de disponibilidad para la visita. Te contactamos a la brevedad para coordinar.",
@@ -262,8 +262,8 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                     return { type: 'visit' };
                 }
                 
-                if (msg.includes('requisitos de alquiler') || msg.includes('documento') || msg.includes('papeles') || 
-                    (msg.includes('requisitos') && msg.includes('requisitos para alquilar'))) {
+                if (msg.includes('requisitos de alquiler') || msg.includes('requisitos para alquilar') || 
+                    msg.includes('documento') || msg.includes('papeles') || msg.includes('requisitos')) {
                     return { type: 'requirements' };
                 }
                 
