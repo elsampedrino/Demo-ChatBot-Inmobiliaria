@@ -221,6 +221,7 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
             const [leadData, setLeadData] = useState({});
             const [reservationData, setReservationData] = useState({});
             const [uploadedFile, setUploadedFile] = useState(null);
+            const [searchResults, setSearchResults] = useState([]);
             const messagesEndRef = useRef(null);
 
             useEffect(() => {
@@ -294,12 +295,14 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
             const getResponse = (analysis, userMessage) => {
                 switch (analysis.type) {
                     case 'greeting':
+                        setSearchResults([]);
                         return chatResponses.greeting[Math.floor(Math.random() * chatResponses.greeting.length)];
                     
                     case 'zone':
                         const zoneProperties = properties.filter(p => 
                             p.zone.toLowerCase().includes(analysis.value.toLowerCase())
                         );
+                        setSearchResults(zoneProperties);
                         return chatResponses.search.zone(analysis.value) + '\n\n' + 
                                zoneProperties.map(p => 
                                    `🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price.toLocaleString()} - ${p.rooms} amb.`
@@ -307,6 +310,7 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                     
                     case 'price':
                         const priceProperties = properties.filter(p => p.price <= analysis.value);
+                        setSearchResults(priceProperties.slice(0, 5));
                         return chatResponses.search.price(analysis.value) + '\n\n' + 
                                priceProperties.slice(0, 3).map(p => 
                                    `🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price.toLocaleString()} - ${p.rooms} amb.`
@@ -314,6 +318,7 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                     
                     case 'rooms':
                         const roomProperties = properties.filter(p => p.rooms >= analysis.value);
+                        setSearchResults(roomProperties.slice(0, 5));
                         return chatResponses.search.rooms(analysis.value) + '\n\n' + 
                                roomProperties.slice(0, 3).map(p => 
                                    `🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price.toLocaleString()} - ${p.rooms} amb.`
@@ -321,6 +326,7 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                     
                     case 'type':
                         const typeProperties = properties.filter(p => p.type === analysis.value);
+                        setSearchResults(typeProperties.slice(0, 5));
                         return chatResponses.search.type(analysis.value) + '\n\n' + 
                                typeProperties.slice(0, 3).map(p => 
                                    `🏠 ${p.type} en ${p.zone} - ${p.currency} ${p.price.toLocaleString()} - ${p.rooms} amb.`
@@ -346,6 +352,7 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                         return "¿Qué quieres confirmar exactamente?";
                     
                     default:
+                        setSearchResults([]);
                         return chatResponses.fallback[Math.floor(Math.random() * chatResponses.fallback.length)];
                 }
             };
@@ -483,19 +490,23 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                             </div>
                             
                             <div className="space-y-6">
-                                <div className="bg-white rounded-lg shadow-sm border p-4">
-                                    <h3 className="font-semibold text-gray-800 mb-4">Propiedades Destacadas</h3>
-                                    <div className="space-y-4 max-h-96 overflow-y-auto">
-                                        {properties.slice(0, 4).map(property => (
-                                            <PropertyCard
-                                                key={property.id}
-                                                property={property}
-                                                onSelect={handlePropertySelect}
-                                                onReserve={handleReservation}
-                                            />
-                                        ))}
+                                {searchResults.length > 0 && (
+                                    <div className="bg-white rounded-lg shadow-sm border p-4">
+                                        <h3 className="font-semibold text-gray-800 mb-4">
+                                            Resultados de búsqueda ({searchResults.length})
+                                        </h3>
+                                        <div className="space-y-4 max-h-96 overflow-y-auto">
+                                            {searchResults.map(property => (
+                                                <PropertyCard
+                                                    key={property.id}
+                                                    property={property}
+                                                    onSelect={handlePropertySelect}
+                                                    onReserve={handleReservation}
+                                                />
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
                                 <div className="bg-white rounded-lg shadow-sm border p-4">
                                     <h3 className="font-semibold text-gray-800 mb-4">Búsquedas Frecuentes</h3>
@@ -509,12 +520,10 @@ La inmobiliaria recibirá tu solicitud y se pondrá en contacto contigo dentro d
                                             <button
                                                 key={index}
                                                 onClick={() => {
-                                                    setInputValue(search);
                                                     addMessage(search, 'user');
                                                     const analysis = analyzeMessage(search);
                                                     const response = getResponse(analysis, search);
                                                     setTimeout(() => addMessage(response), 500);
-                                                    setInputValue('');
                                                 }}
                                                 className="w-full text-left text-sm text-primary hover:bg-blue-50 p-2 rounded transition-colors"
                                             >
